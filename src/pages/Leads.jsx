@@ -98,8 +98,8 @@ const Leads = () => {
 
   // BUSCAR LEADS
   useEffect(() => {
-    fetch("http://localhost:3001/Leads")
-    // fetch("https://projeto-tiamate-back.onrender.com/leads")
+    // fetch("http://localhost:3001/Leads")
+    fetch("https://projeto-tiamate-back.onrender.com/leads")
       .then(res => res.json())
       .then(data => setLeads(data))
   }, [])
