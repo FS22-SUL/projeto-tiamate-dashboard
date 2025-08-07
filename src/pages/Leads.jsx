@@ -3,6 +3,7 @@ import { useState, useContext, useEffect } from "react"
 import { AntContext } from "../contexts/AntContext"
 import { Button, Popconfirm, Table } from "antd"
 import { DeleteFilled } from "@ant-design/icons"
+import { AXIOS } from "../services"
 
 const Leads = () => {
   const { api } = useContext(AntContext)
@@ -12,21 +13,21 @@ const Leads = () => {
   const colunas = [
     {
       title: "Nome",
-      dataIndex: "nome",
+      dataIndex: "lead_nome",
       key: "lead_nome",
       width: "21%",
       ellipsis: true,
     },
     {
       title: "Email",
-      dataIndex: "email",
+      dataIndex: "lead_email",
       key: "lead_email",
       width: "25%",
       ellipsis: true,
     },
     {
       title: "Telefone",
-      dataIndex: "telefone",
+      dataIndex: "lead_telefone",
       key: "lead_telefone",
       width: "15%",
       ellipsis: true,
@@ -36,21 +37,21 @@ const Leads = () => {
     },
     {
       title: "Cidade",
-      dataIndex: "cidade",
+      dataIndex: "lead_cidade",
       key: "lead_cidade",
       width: "10%",
       ellipsis: true,
     },
     {
       title: "Estado",
-      dataIndex: "estado",
+      dataIndex: "lead_estado",
       key: "lead_estado",
       width: "10%",
       ellipsis: true,
     },
     {
       title: "Mídia",
-      dataIndex: "midia",
+      dataIndex: "lead_midia",
       key: "lead_midia",
       width: "10%",
       ellipsis: true,
@@ -66,7 +67,7 @@ const Leads = () => {
             title="Deseja excluir?"
             okText="Sim"
             cancelText="Não"
-            onConfirm={() => handleDelete(record.key)}
+            onConfirm={() => handleDelete(record.lead_id)}
           >
             <div className="w-[30px] h-[30px] flex items-center justify-center cursor-pointer duration-150 border border-transparent rounded-full hover:border-marrom group">
               <DeleteFilled className="duration-150 !text-bege group-hover:!text-marrom" />
@@ -87,21 +88,30 @@ const Leads = () => {
   }
 
   // DELETAR
-  function handleDelete(key) {
-    setLeads((prev) => prev.filter((item) => item.key !== key))
-
-    api.success({
-      message: "Lead excluída com sucesso!",
-      description: "Uma lead foi removida da lista.",
+  async function handleDelete(id) {
+    let request = await AXIOS.delete(`/leads/${id}`);
+    api[request.data.type]({
+      description: request.data.description,
     })
+    setTimeout(() => {
+      getLeads();
+    }, 2000)
+  }
+
+  async function getLeads(){
+    let request = await AXIOS.get("/leads");
+    if(request.data){
+      setLeads(request.data);
+    }
   }
 
   // BUSCAR LEADS
   useEffect(() => {
     // fetch("http://localhost:3001/Leads")
-    fetch("https://projeto-tiamate-back.onrender.com/leads")
-      .then(res => res.json())
-      .then(data => setLeads(data))
+    // fetch("https://projeto-tiamate-back.onrender.com/leads")
+    //   .then(res => res.json())
+    //   .then(data => setLeads(data))
+    getLeads();
   }, [])
   return ( 
     <>
@@ -116,6 +126,7 @@ const Leads = () => {
           </Button>
         </div>
         <Table
+          rowKey={"lead_id"}
           dataSource={leads}
           columns={colunas}
         />
